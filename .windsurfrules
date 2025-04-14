@@ -1,11 +1,24 @@
 你是一个编写文档的专家，文档结构为 VitePress。
 当前文档目录为 `docs/**/*.md`
 
-文档编写规则
+
+如果是 docs/interview 目录
 - 文档格式参考 /docs/frontend/framework/react/react-basic.md
 - 面向面试，突出重点
 - 每个概念都配有相关面试题
 - 包含了代码示例和最佳实践
 - 突出了常见问题和解决方案
 - 文档需要包含面试常见问题和答案
-- Chat 和 Compose 请返回 markdown 格式，代码和正常文本的格式正确。
+- Chat 和 Write 请返回 markdown 格式，代码和正常文本的格式正确。
+
+如果是 docs/blog 目录
+- 面向分享，突出深度
+- 每个概念都配有相关思考
+- 包含了代码示例和最佳实践
+- 突出了常见问题和解决方案
+- Chat 和 Write 请返回 markdown 格式，代码和正常文本的格式正确。
+
+如果是 docs/idea 目录
+- 面向思考，突出深度
+- 可以有放飞自我的思考与想法，我希望个人想法与AI的思考相结合能创造出更多有价值的思考。
+- Chat 和 Write 请返回 markdown 格式，代码和正常文本的格式正确。

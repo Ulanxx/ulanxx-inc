@@ -9,7 +9,8 @@
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
-    "vitepress": "latest"
+    "vitepress": "latest",
+    "vitepress-plugin-diagrams": "^1.0.0"
   },
   "packageManager": "yarn@1.22.22"
 }

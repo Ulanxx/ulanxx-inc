@@ -1,18 +1,21 @@
-# 关于本站
+# Ulanxx
 
-本站是一个专注于前端技术整理的开源项目，旨在帮助开发者更好地准备前端面试。
+<img src="https://media.giphy.com/media/1NYkJ0wTvncdXV5dN5/giphy.gif" alt="Coder GIF" width="80" height="80">
 
-## 项目特点
+## 关于我
 
-- 系统化的知识整理
-- 持续更新的面试题库
-- 详细的解答和分析
-- 开源共建
+👋 大家好，我是 Ulanxx！热衷于 **全栈** 开发，专注于前沿技术。终身学习者，时刻探索新的框架、工具和概念来解决实际问题。🚀
 
-## 参与贡献
+## 🛠️ 技术栈
 
-欢迎通过 [GitHub](https://github.com/Melon-Incubator/interview) 参与项目建设，提交 PR 或提出建议。
+- TypeScript, Vite, Node.js, Vite, DApp, React, React Native, Docker, CI/CD
 
-## 版权说明
+## 🔥 正在补充
 
-本项目基于 MIT 许可证开源。
+- **Solidity、Solana**
+- **Flutter**
+- **DevOps**
+
+## 📬 联系我
+
+- Email: [mifindxuan@gmail.com](mailto:mifindxuan@gmail.com)
