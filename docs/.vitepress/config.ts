@@ -36,6 +36,7 @@ export default defineConfig({
                   link: "/frontend/framework",
                   items: [
                     { text: "React", link: "/frontend/framework/react" },
+                    { text: "Vue", link: "/frontend/framework/vue" },
                     {
                       text: "跨端开发",
                       link: "/frontend/framework/cross-platform",
