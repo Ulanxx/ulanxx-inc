@@ -54,7 +54,7 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/Ulanxx/fe-interview.git
+git clone https://github.com/Ulanxx/ulanxx-inc.git
 
 # 安装依赖
 yarn install

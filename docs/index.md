@@ -13,7 +13,7 @@ hero:
       link: /blog/
     - theme: alt
       text: GitHub
-      link: https://github.com/Ulanxx/fe-interview
+      link: https://github.com/Ulanxx/ulanxx-inc
 
 features:
   - icon: 💻

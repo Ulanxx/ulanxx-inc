@@ -5,10 +5,13 @@ export default defineConfig({
   title: "{ Ulanxx Inc }",
   description: "Ulanxx Inc 🚀 个人技术孵化站点",
   head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }],
-    ['meta', { name: 'theme-color', content: '#ff6b6b' }],
-    ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
-    ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }]
+    ["link", { rel: "icon", href: "/favicon.ico" }],
+    ["meta", { name: "theme-color", content: "#ff6b6b" }],
+    ["meta", { name: "apple-mobile-web-app-capable", content: "yes" }],
+    [
+      "meta",
+      { name: "apple-mobile-web-app-status-bar-style", content: "black" },
+    ],
   ],
   locales: {
     root: {
@@ -20,20 +23,20 @@ export default defineConfig({
         siteTitle: "{ Ulanxx Inc }",
         nav: [
           { text: "首页", link: "/" },
-          { 
-            text: "前端面试速通", 
+          {
+            text: "前端面试速通",
             link: "/interview/",
-            activeMatch: "^/interview/"
+            activeMatch: "^/interview/",
           },
-          { 
-            text: "技术笔记", 
+          {
+            text: "技术笔记",
             link: "/blog/",
-            activeMatch: "^/blog/"
+            activeMatch: "^/blog/",
           },
-          { 
-            text: "思考", 
+          {
+            text: "思考",
             link: "/idea/",
-            activeMatch: "^/idea/"
+            activeMatch: "^/idea/",
           },
           { text: "关于", link: "/about/" },
         ],
@@ -46,41 +49,43 @@ export default defineConfig({
                 { text: "算法与数据结构", link: "/interview/algorithm/" },
                 { text: "计算机网络", link: "/interview/network/" },
                 { text: "前端基础", link: "/interview/frontend/" },
-                { text: "模拟面试", link: "/interview/mock/" }
-              ]
-            }
+                { text: "模拟面试", link: "/interview/mock/" },
+              ],
+            },
           ],
           "/blog/": [
             {
               text: "技术笔记",
               items: [
                 { text: "目录", link: "/blog/" },
-                { 
-                  text: "样式解决方案", 
+                {
+                  text: "样式解决方案",
                   collapsed: false,
                   items: [
-                    { text: "Tailwind CSS 快速上手", link: "/blog/style/tailwind/" },
-                    { text: "组件库关系梳理", link: "/blog/style/tailwind/relations" }
-                  ]
+                    {
+                      text: "Tailwind CSS 快速上手",
+                      link: "/blog/style/tailwind/",
+                    },
+                    {
+                      text: "组件库关系梳理",
+                      link: "/blog/style/tailwind/relations",
+                    },
+                  ],
                 },
                 {
                   text: "自动化工具",
                   collapsed: false,
-                  items: [
-                    { text: "Automa 介绍", link: "/blog/automa/intro" }
-                  ]
-                }
-              ]
-            }
+                  items: [{ text: "Automa 介绍", link: "/blog/automa/intro" }],
+                },
+              ],
+            },
           ],
           "/idea/": [
             {
               text: "思考与分享",
-              items: [
-                { text: "概述", link: "/idea/" }
-              ]
-            }
-          ]
+              items: [{ text: "概述", link: "/idea/" }],
+            },
+          ],
         },
         footer: {
           message: "基于 MIT 许可发布",
@@ -88,7 +93,7 @@ export default defineConfig({
         },
         outline: {
           level: "deep",
-          label: "本页目录"
+          label: "本页目录",
         },
         lastUpdated: {
           text: "最后更新时间",
@@ -105,7 +110,7 @@ export default defineConfig({
         sidebarMenuLabel: "菜单",
         darkModeSwitchLabel: "主题",
         socialLinks: [
-          { icon: "github", link: "https://github.com/Ulanxx/fe-interview" },
+          { icon: "github", link: "https://github.com/Ulanxx/ulanxx-inc" },
         ],
       },
     },
