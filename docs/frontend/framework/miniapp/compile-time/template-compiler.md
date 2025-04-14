@@ -46,8 +46,8 @@ template-compiler 是小程序构建器的核心组件之一，负责将小程�
 在 Generator/index.ts 中实现，主要功能：
 
 - 将 AST 转换为可执行的 JavaScript 代码
-- 处理模板中的表达式求值（通过 `@tuya-miniapp/expression-compiler`）
-- 处理安全脚本（SJS）的导入和转换（通过 `@tuya-miniapp/transform-sjs-code`）
+- 处理模板中的表达式求值（通过 `@ulanxx/expression-compiler`）
+- 处理安全脚本（SJS）的导入和转换（通过 `@ulanxx/transform-sjs-code`）
 - 生成模块导入代码、模板包含代码
 - 实现标签收集器，优化标签名称的存储
 - 支持条件渲染、列表渲染等复杂指令的代码生成

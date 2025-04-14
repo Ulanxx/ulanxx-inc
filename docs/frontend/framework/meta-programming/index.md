@@ -28,11 +28,9 @@ public parse(pluginFile: string): { plugin?: PluginEntity; caniuse?: string; tas
   const program = ts.createProgram([pluginFile], {});
   const source = program.getSourceFile(pluginFile);
   if (source) {
-    const TuyaPlugin =
-      require(pluginFile).TuyaPlugin ||
-      require(pluginFile).TTTPlugin ||
-      require(pluginFile).ThingPlugin;
-    var entity = this.parsePlugin(source, program.getTypeChecker(), TuyaPlugin);
+    const MyPlugin =
+      require(pluginFile).MyPlugin;
+    var entity = this.parsePlugin(source, program.getTypeChecker(), MyPlugin);
 
     //若为单一平台，设置所有方法、事件以及属性为单一平台
     if (entity.meta.platform != tt.Platforms.All) {
@@ -114,7 +112,7 @@ private parsePlugin(source: ts.SourceFile, typeChecker: ts.TypeChecker, plugin):
 #### 3.2.1 代码生成入口 - generate 函数
 
 ```typescript
-// src/bin/uni/thing-plugin-cli-generate.ts
+// src/bin/uni/plugin-cli-generate.ts
 function generate() {
   // 初始化解析器
   parser = new Parser({ isRN: false, checkErrorCode: checkErrorCode });
