@@ -1,8 +1,10 @@
 {
-  "name": "interview-notes",
+  "name": "ulanxx-inc",
   "version": "1.0.0",
-  "description": "Interview Notes",
+  "description": "Ulanxx Inc 🚀 个人技术孵化站点",
   "type": "module",
+  "author": "Ulanxx <mifindxuan@gmail.com>",
+  "homepage": "https://ulanxx-inc.netlify.app",
   "scripts": {
     "dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
@@ -12,5 +14,6 @@
     "vitepress": "latest",
     "vitepress-plugin-diagrams": "^1.0.0"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "license": "MIT"
 }
