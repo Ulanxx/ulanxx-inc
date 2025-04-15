@@ -2,4 +2,10 @@
 
 - [Tailwind CSS 快速上手指北](./style/tailwind/index.md)
 - [Tailwind CSS、ShadCN 和 Radix UI 的关系](./style/tailwind/relations.md)
-- [Automa 介绍](./automa/intro.md)
+
+### automa
+
+- [automa 介绍](./automa/intro.md)
+- [automa 二次开发指南](./automa/project.md)
+- [automa 开发与构建流程](./automa/dev-build.md)
+- [automa 工作流录制功能深度解析](./automa/record-workflow.md)

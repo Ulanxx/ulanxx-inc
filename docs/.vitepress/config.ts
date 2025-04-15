@@ -75,7 +75,21 @@ export default defineConfig({
                 {
                   text: "自动化工具",
                   collapsed: false,
-                  items: [{ text: "Automa 介绍", link: "/blog/automa/intro" }],
+                  items: [
+                    { text: "automa 介绍", link: "/blog/automa/intro" },
+                    {
+                      text: "automa 项目开发与构建流程",
+                      link: "/blog/automa/dev-build",
+                    },
+                    {
+                      text: "automa 项目二次开发指南",
+                      link: "/blog/automa/project",
+                    },
+                    {
+                      text: "automa 工作流录制功能深度解析",
+                      link: "/blog/automa/record-workflow",
+                    },
+                  ],
                 },
               ],
             },
