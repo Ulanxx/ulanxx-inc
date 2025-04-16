@@ -5,7 +5,7 @@ export default defineConfig({
   title: "{ Ulanxx Inc }",
   description: "Ulanxx Inc 🚀 个人技术孵化站点",
   head: [
-    ["link", { rel: "icon", href: "/favicon.ico" }],
+    ["link", { rel: "icon", href: "/x.ico" }],
     ["meta", { name: "theme-color", content: "#ff6b6b" }],
     ["meta", { name: "apple-mobile-web-app-capable", content: "yes" }],
     [
