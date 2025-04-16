@@ -67,7 +67,7 @@ export default defineConfig({
                       link: "/blog/style/tailwind/",
                     },
                     {
-                      text: "组件库关系梳理",
+                      text: "Tailwind CSS、ShadCN、Radix UI",
                       link: "/blog/style/tailwind/relations",
                     },
                   ],
