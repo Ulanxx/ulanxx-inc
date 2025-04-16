@@ -1,6 +1,6 @@
 # { Ulanxx Inc } 个人技术站
 
-![Banner](https://img.shields.io/badge/FE-Knowledge-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![VitePress](https://img.shields.io/badge/Framework-VitePress-brightgreen)
+![Banner](https://img.shields.io/badge/FE-Knowledge-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![VitePress](https://img.shields.io/badge/Framework-VitePress-brightgreen)[![Netlify Status](https://api.netlify.com/api/v1/badges/ab37ecd9-1924-4151-88fa-61bb582010a3/deploy-status)](https://app.netlify.com/sites/ulanxx-inc/deploys)
 
 > 一个基于 VitePress 的个人技术分享与知识积累站点，整合前端面试要点、技术笔记与深度思考。
 
