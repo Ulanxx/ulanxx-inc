@@ -73,6 +73,16 @@ export default defineConfig({
                   ],
                 },
                 {
+                  text: "Chrome 扩展开发实战教程",
+                  collapsed: false,
+                  items: [
+                    {
+                      text: "二维码生成与扫描工具",
+                      link: "/blog/chrome-extension/qr-code",
+                    },
+                  ],
+                },
+                {
                   text: "自动化工具",
                   collapsed: false,
                   items: [
