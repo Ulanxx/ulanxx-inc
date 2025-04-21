@@ -13,3 +13,7 @@
 - [automa 二次开发指南](./automa/project.md)
 - [automa 开发与构建流程](./automa/dev-build.md)
 - [automa 工作流录制功能深度解析](./automa/record-workflow.md)
+
+### 国际化
+
+- [架构思考](./intl/intro.md)
