@@ -1,7 +1,6 @@
-import { defineConfig } from "vitepress";
-import { configureDiagramsPlugin } from "vitepress-plugin-diagrams";
+import { withMermaid } from "vitepress-plugin-mermaid";
 
-export default defineConfig({
+export default withMermaid({
   title: "{ Ulanxx Inc }",
   description: "Ulanxx Inc 🚀 个人技术孵化站点",
   head: [
@@ -101,6 +100,14 @@ export default defineConfig({
                     },
                   ],
                 },
+                {
+                  text: "国际化",
+                  link: "/blog/intl/intro",
+                },
+                {
+                  text: "前端基建体系化建设指南",
+                  link: "/blog/fe/basis",
+                },
               ],
             },
           ],
@@ -163,13 +170,11 @@ export default defineConfig({
       },
     },
   },
-  markdown: {
-    lineNumbers: true,
-    config: (md) => {
-      configureDiagramsPlugin(md, {
-        diagramsDir: "docs/public/diagrams",
-        publicPath: "/diagrams",
-      });
-    },
+  mermaid: {
+    // refer https://mermaid.js.org/config/setup/modules/mermaidAPI.html#mermaidapi-configuration-defaults for options
+  },
+  // optionally set additional config for plugin itself with MermaidPluginConfig
+  mermaidPlugin: {
+    class: "mermaid my-class", // set additional css classes for parent container
   },
 });

@@ -11,8 +11,9 @@
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
+    "mermaid": "^11.6.0",
     "vitepress": "latest",
-    "vitepress-plugin-diagrams": "^1.0.0"
+    "vitepress-plugin-mermaid": "^2.0.17"
   },
   "packageManager": "yarn@1.22.22",
   "license": "MIT"
