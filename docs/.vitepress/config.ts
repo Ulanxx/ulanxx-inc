@@ -11,6 +11,8 @@ export default withMermaid({
       "meta",
       { name: "apple-mobile-web-app-status-bar-style", content: "black" },
     ],
+    ["meta", { name: "ahrefs-site-verification", content: "6cd6e54203e33c8879184e8123af343fd507e4173f32378ca8c02fa9b84954b4" }],
+
   ],
   locales: {
     root: {
