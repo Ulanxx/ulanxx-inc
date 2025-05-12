@@ -17,6 +17,7 @@
 ### 国际化
 
 - [SEO优化实战指南：从基础到高阶策略](./intl/seo/index.md)
+- [SEO行业术语解析表](./intl/seo/keyword.md)
 
 ### 前端
 
