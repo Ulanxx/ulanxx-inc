@@ -16,5 +16,8 @@
     "vitepress-plugin-mermaid": "^2.0.17"
   },
   "packageManager": "yarn@1.22.22",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "sitemap": "^8.0.0"
+  }
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="120" height="120" rx="16" fill="#1E1E1E"/>
+  
+  <!-- 西瓜外形 -->
+  <ellipse cx="60" cy="60" rx="40" ry="36" fill="#66BB6A" stroke="#81C784" stroke-width="2"/>
+  
+  <!-- 西瓜的绿色条纹 -->
+  <path d="M28 60C28 41.2 42.3 26 60 26C77.7 26 92 41.2 92 60" stroke="#81C784" stroke-width="3" stroke-linecap="round"/>
+  <path d="M32 48C32 36.9 44.5 28 60 28C75.5 28 88 36.9 88 48" stroke="#81C784" stroke-width="2" stroke-linecap="round"/>
+  <path d="M32 72C32 83.1 44.5 92 60 92C75.5 92 88 83.1 88 72" stroke="#81C784" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- 西瓜的红色内部 -->
+  <ellipse cx="60" cy="60" rx="34" ry="30" fill="#FF5252"/>
+  
+  <!-- 西瓜的黑色种子 -->
+  <circle cx="45" cy="50" r="2.5" fill="#424242"/>
+  <circle cx="55" cy="45" r="2.5" fill="#424242"/>
+  <circle cx="65" cy="50" r="2.5" fill="#424242"/>
+  <circle cx="50" cy="60" r="2.5" fill="#424242"/>
+  <circle cx="70" cy="60" r="2.5" fill="#424242"/>
+  <circle cx="45" cy="70" r="2.5" fill="#424242"/>
+  <circle cx="60" cy="70" r="2.5" fill="#424242"/>
+  <circle cx="75" cy="50" r="2.5" fill="#424242"/>
+  <circle cx="75" cy="70" r="2.5" fill="#424242"/>
+  
+  <!-- 西瓜顶部的绿色叶子 -->
+  <path d="M60 24C60 24 55 18 50 20C45 22 48 28 48 28" stroke="#66BB6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="#A5D6A7"/>
+  
+  <!-- 高光效果 -->
+  <ellipse cx="45" cy="50" rx="15" ry="12" fill="url(#paint0_radial)" fill-opacity="0.4"/>
+  
+  <!-- 定义渐变 -->
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(45 50) rotate(90) scale(15)">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
