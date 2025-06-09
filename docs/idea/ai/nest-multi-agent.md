@@ -1,485 +1,188 @@
-## nestjs 实现多 Agent 交互系统
+# 如何用 NestJS 构建一个 AI Agent 中控系统
 
-### 1. 系统架构设计
+AI Agent 系统正在从“单一任务执行”迈向“多 Agent 协同”的复杂工作流，而中控（Orchestrator）正是这个系统的“大脑”。本文将分享如何使用 [NestJS](https://nestjs.com/) 构建一个模块化、可扩展、支持监控的中控系统，调度多个异步 Agent 高效协作。
 
-使用 NestJS 的模块化架构，我们可以构建一个灵活且可扩展的多 agent 系统：
+---
 
-```typescript
-// src/app.module.ts
-@Module({
-  imports: [
-    ConfigModule.forRoot(),
-    AgentModule,
-    WorkflowModule,
-    CommunicationModule,
-    MonitoringModule,
-  ],
-})
-export class AppModule {}
+## 一、背景与核心目标
+
+在多 Agent 系统中，单个 Agent 通常职责单一：如撰写、搜索、审校、总结等。中控系统的职责包括：
+
+- 接收用户请求
+- 拆解任务，调度多个 Agent 协同处理
+- 管理任务状态、上下文与进度
+- 提供统一监控与可观测性
+
+---
+
+## 二、系统架构总览
+
+我们先看架构图：
+
+```mermaid
+flowchart TD
+  subgraph NestJS 中控系统
+    UI[用户请求 / 前端接口]
+    Controller[TaskController]
+    Orchestrator[TaskOrchestrator]
+    Registry[AgentRegistry]
+    Queue[任务队列（BullMQ）]
+    State[TaskStateService]
+    Metrics[Prometheus Exporter]
+  end
+
+  subgraph Agent Worker
+    Agent1[WriterAgent Worker]
+    Agent2[SearchAgent Worker]
+  end
+
+  UI --> Controller --> Orchestrator
+  Orchestrator --> Registry
+  Orchestrator --> Queue
+  Queue --> Agent1
+  Queue --> Agent2
+
+  Agent1 --> State
+  Agent2 --> State
+  State --> Metrics
 ```
 
-#### 4.2 Agent 模块设计
+---
 
-```typescript
-// src/agent/agent.module.ts
-@Module({
-  imports: [TypeOrmModule.forFeature([Agent])],
-  providers: [AgentService, AgentFactory],
-  exports: [AgentService],
-})
-export class AgentModule {}
+## 三、模块职责划分
 
-// src/agent/agent.entity.ts
-@Entity()
-export class Agent {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
+### 1. `TaskController` — 用户接口入口
 
-  @Column()
-  name: string;
+负责接收外部请求，常见如：
 
-  @Column()
-  type: string;
-
-  @Column("json")
-  capabilities: string[];
-
-  @Column("json")
-  configuration: Record<string, any>;
-
-  @Column()
-  status: AgentStatus;
-
-  @Column("json")
-  metrics: AgentMetrics;
-}
-
-// src/agent/agent.service.ts
-@Injectable()
-export class AgentService {
-  constructor(
-    @InjectRepository(Agent)
-    private agentRepository: Repository<Agent>,
-    private agentFactory: AgentFactory
-  ) {}
-
-  async createAgent(config: AgentConfig): Promise<Agent> {
-    const agent = this.agentFactory.createAgent(config);
-    return this.agentRepository.save(agent);
-  }
-
-  async getAgentById(id: string): Promise<Agent> {
-    return this.agentRepository.findOneOrFail({ where: { id } });
-  }
-
-  async updateAgentStatus(id: string, status: AgentStatus): Promise<void> {
-    await this.agentRepository.update(id, { status });
-  }
+```ts
+@Post('/task')
+createTask(@Body() dto: CreateTaskDto) {
+  return this.taskOrchestrator.dispatch(dto);
 }
 ```
 
-### 3. 工作流配置系统
+---
 
-```typescript
-// src/workflow/workflow.module.ts
-@Module({
-  imports: [TypeOrmModule.forFeature([Workflow])],
-  providers: [WorkflowService, WorkflowEngine],
-  exports: [WorkflowService, WorkflowEngine],
-})
-export class WorkflowModule {}
+### 2. `TaskOrchestrator` — 中控核心模块
 
-// src/workflow/workflow.entity.ts
-@Entity()
-export class Workflow {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
+任务调度核心逻辑，包括：
 
-  @Column()
-  name: string;
+- 拆解任务（如需要先搜索再撰写）
+- 将子任务推送至 BullMQ 队列
+- 设置依赖关系或顺序控制（可选）
 
-  @Column("json")
-  definition: WorkflowDefinition;
-
-  @Column()
-  status: WorkflowStatus;
-
-  @Column("json")
-  variables: Record<string, any>;
-}
-
-// src/workflow/workflow.engine.ts
-@Injectable()
-export class WorkflowEngine {
-  constructor(
-    private agentService: AgentService,
-    private eventEmitter: EventEmitter2
-  ) {}
-
-  async executeWorkflow(workflowId: string, input: any): Promise<any> {
-    const workflow = await this.workflowService.getWorkflow(workflowId);
-    const context = new WorkflowContext(workflow, input);
-
-    for (const step of workflow.definition.steps) {
-      await this.executeStep(step, context);
-    }
-
-    return context.getOutput();
-  }
-
-  private async executeStep(step: WorkflowStep, context: WorkflowContext) {
-    const agent = await this.agentService.getAgentById(step.agentId);
-    const result = await agent.execute(step.action, context.getVariables());
-    context.setStepResult(step.id, result);
-  }
-}
-```
-
-### 4. Agent 通信系统
-
-```typescript
-// src/communication/communication.module.ts
-@Module({
-  imports: [RedisModule],
-  providers: [MessageBroker, CommunicationService],
-  exports: [CommunicationService],
-})
-export class CommunicationModule {}
-
-// src/communication/message-broker.ts
-@Injectable()
-export class MessageBroker {
-  constructor(
-    private readonly redis: Redis,
-    private readonly eventEmitter: EventEmitter2
-  ) {}
-
-  async publish(channel: string, message: any): Promise<void> {
-    await this.redis.publish(channel, JSON.stringify(message));
-  }
-
-  async subscribe(
-    channel: string,
-    callback: (message: any) => void
-  ): Promise<void> {
-    const subscriber = this.redis.duplicate();
-    await subscriber.subscribe(channel);
-    subscriber.on("message", (_, message) => {
-      callback(JSON.parse(message));
-    });
-  }
-}
-
-// src/communication/communication.service.ts
-@Injectable()
-export class CommunicationService {
-  constructor(private messageBroker: MessageBroker) {}
-
-  async sendMessage(from: string, to: string, message: any): Promise<void> {
-    await this.messageBroker.publish(`agent:${to}`, {
-      from,
-      to,
-      content: message,
-      timestamp: new Date(),
-    });
-  }
-
-  async broadcast(message: any, exclude?: string[]): Promise<void> {
-    await this.messageBroker.publish("broadcast", {
-      content: message,
-      exclude,
-      timestamp: new Date(),
+```ts
+async dispatch(dto: CreateTaskDto) {
+  const agents = this.registry.resolveAgents(dto.taskType);
+  for (const agent of agents) {
+    await this.queueService.enqueue(agent.queueName, {
+      taskId: dto.id,
+      payload: agent.prepare(dto),
     });
   }
 }
 ```
 
-### 5. 可配置的工作流定义
+---
 
-```typescript
-// src/workflow/interfaces/workflow.interface.ts
-interface WorkflowDefinition {
-  version: string;
-  name: string;
-  description: string;
-  steps: WorkflowStep[];
-  variables: WorkflowVariable[];
-  errorHandling: ErrorHandlingStrategy;
-}
+### 3. `AgentRegistry` — Agent 动态注册表
 
-interface WorkflowStep {
-  id: string;
-  name: string;
-  type: "agent" | "condition" | "loop" | "parallel";
-  agentId?: string;
-  action: string;
-  input: Record<string, any>;
-  next?: string;
-  errorNext?: string;
-  timeout?: number;
-}
+每个 Agent 都注册自己的元信息：
 
-// src/workflow/workflow.service.ts
-@Injectable()
-export class WorkflowService {
-  constructor(
-    @InjectRepository(Workflow)
-    private workflowRepository: Repository<Workflow>,
-    private workflowEngine: WorkflowEngine
-  ) {}
-
-  async createWorkflow(definition: WorkflowDefinition): Promise<Workflow> {
-    const workflow = new Workflow();
-    workflow.name = definition.name;
-    workflow.definition = definition;
-    workflow.status = WorkflowStatus.ACTIVE;
-    return this.workflowRepository.save(workflow);
-  }
-
-  async executeWorkflow(workflowId: string, input: any): Promise<any> {
-    return this.workflowEngine.executeWorkflow(workflowId, input);
-  }
-}
-```
-
-### 6. 示例：代码审查工作流
-
-```typescript
-// src/workflows/code-review.workflow.ts
-const codeReviewWorkflow: WorkflowDefinition = {
-  version: "1.0",
-  name: "Code Review Workflow",
-  description: "Automated code review process",
-  steps: [
-    {
-      id: "security-check",
-      name: "Security Analysis",
-      type: "agent",
-      agentId: "security-agent",
-      action: "analyze",
-      input: {
-        type: "security",
-        rules: ["owasp", "cwe"],
-      },
-      next: "style-check",
-    },
-    {
-      id: "style-check",
-      name: "Code Style Check",
-      type: "agent",
-      agentId: "style-agent",
-      action: "check",
-      input: {
-        rules: ["eslint", "prettier"],
-      },
-      next: "performance-check",
-    },
-    {
-      id: "performance-check",
-      name: "Performance Analysis",
-      type: "agent",
-      agentId: "performance-agent",
-      action: "analyze",
-      input: {
-        metrics: ["complexity", "memory", "cpu"],
-      },
-      next: "aggregate-results",
-    },
-    {
-      id: "aggregate-results",
-      name: "Aggregate Results",
-      type: "agent",
-      agentId: "report-agent",
-      action: "generate-report",
-      input: {
-        format: "markdown",
-      },
-    },
-  ],
-  variables: [
-    {
-      name: "repository",
-      type: "string",
-      required: true,
-    },
-    {
-      name: "branch",
-      type: "string",
-      required: true,
-    },
-  ],
-  errorHandling: {
-    strategy: "retry",
-    maxRetries: 3,
-    retryDelay: 5000,
-  },
-};
-```
-
-### 7. 监控和日志系统
-
-```typescript
-// src/monitoring/monitoring.module.ts
-@Module({
-  imports: [PrometheusModule],
-  providers: [MonitoringService, MetricsCollector],
-  exports: [MonitoringService],
-})
-export class MonitoringModule {}
-
-// src/monitoring/monitoring.service.ts
-@Injectable()
-export class MonitoringService {
-  constructor(
-    private metricsCollector: MetricsCollector,
-    private logger: Logger
-  ) {}
-
-  @Metric("agent_execution_time")
-  async recordAgentExecution(agentId: string, duration: number): Promise<void> {
-    this.metricsCollector.recordExecutionTime(agentId, duration);
-    this.logger.debug(`Agent ${agentId} execution time: ${duration}ms`);
-  }
-
-  @Metric("workflow_completion")
-  async recordWorkflowCompletion(
-    workflowId: string,
-    status: string
-  ): Promise<void> {
-    this.metricsCollector.recordWorkflowStatus(workflowId, status);
-    this.logger.info(`Workflow ${workflowId} completed with status: ${status}`);
-  }
-}
-```
-
-### 8. 配置管理
-
-```typescript
-// src/config/configuration.ts
-export default () => ({
-  port: parseInt(process.env.PORT, 10) || 3000,
-  database: {
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT, 10) || 5432,
-  },
-  redis: {
-    host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT, 10) || 6379,
-  },
-  agents: {
-    defaultTimeout: 30000,
-    maxRetries: 3,
-    retryDelay: 1000,
-  },
-  workflows: {
-    maxConcurrent: 10,
-    defaultTimeout: 300000,
-  },
+```ts
+registerAgent({
+  name: "WriterAgent",
+  queueName: "writer",
+  prepare: (dto) => ({ content: dto.topic }),
 });
 ```
 
-### 9. 使用示例
+支持插件式拓展，未来可以支持热插拔、心跳检测等。
 
-```typescript
-// src/example/usage.ts
-@Controller("workflows")
-export class WorkflowController {
-  constructor(
-    private workflowService: WorkflowService,
-    private monitoringService: MonitoringService
-  ) {}
+---
 
-  @Post("execute")
-  async executeWorkflow(
-    @Body() input: { workflowId: string; data: any }
-  ): Promise<any> {
-    const startTime = Date.now();
-    try {
-      const result = await this.workflowService.executeWorkflow(
-        input.workflowId,
-        input.data
-      );
+### 4. `TaskStateService` — 状态管理
 
-      await this.monitoringService.recordWorkflowCompletion(
-        input.workflowId,
-        "success"
-      );
+用于存储 Agent 执行过程中的中间状态、最终输出。
 
-      return result;
-    } catch (error) {
-      await this.monitoringService.recordWorkflowCompletion(
-        input.workflowId,
-        "failed"
-      );
-      throw error;
-    } finally {
-      const duration = Date.now() - startTime;
-      await this.monitoringService.recordWorkflowDuration(
-        input.workflowId,
-        duration
-      );
-    }
+```ts
+async updateState(taskId: string, result: AgentResult) {
+  await this.cache.set(taskId, JSON.stringify(result));
+}
+```
+
+可使用 Redis / Mongo / 内存 等存储策略。
+
+---
+
+### 5. `BullMQ` — 解耦任务调度
+
+中控系统和各 Agent 通过 BullMQ 队列异步通信。
+
+配置示例：
+
+```ts
+BullModule.registerQueue({
+  name: "writer",
+  connection: { host: "localhost", port: 6379 },
+});
+```
+
+每个 Agent Worker 在独立服务中监听自己的队列。
+
+---
+
+### 6. `Prometheus Exporter` — 指标监控
+
+集成 `@willsoto/nestjs-prometheus` 实现指标导出：
+
+```ts
+@Counter({ name: 'agent_task_total', help: 'Total number of agent tasks' })
+countTasks() {
+  return this.stateService.getAll();
+}
+```
+
+支持输出任务量、失败率、平均响应时间等。
+
+---
+
+## 四、Agent Worker 实现（独立服务）
+
+一个典型 Agent Worker（如 WriterAgent）：
+
+```ts
+@Processor("writer")
+export class WriterProcessor {
+  constructor(private readonly state: TaskStateService) {}
+
+  @Process()
+  async handleJob(job: Job<AgentPayload>) {
+    const result = await this.runAgent(job.data.payload);
+    await this.state.updateState(job.data.taskId, result);
+  }
+
+  private async runAgent(payload: any): Promise<AgentResult> {
+    // 实际调用大模型 / 自定义逻辑
+    return { output: `Written content for ${payload.content}` };
   }
 }
 ```
 
-### 10. 部署和扩展
+---
 
-使用 Docker Compose 进行部署：
+## 五、中控系统的扩展建议
 
-```yaml
-# docker-compose.yml
-version: "3.8"
+1. **支持任务依赖图（DAG）**：如先搜索再撰写，可用队列嵌套或 `workflow engine` 管理依赖。
+2. **Agent 健康检查与自动重试机制**
+3. **全链路日志跟踪（如 Zipkin + OpenTelemetry）**
+4. **多租户隔离或分布式部署**
 
-services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - DB_HOST=postgres
-      - REDIS_HOST=redis
-    depends_on:
-      - postgres
-      - redis
+---
 
-  postgres:
-    image: postgres:13
-    environment:
-      - POSTGRES_PASSWORD=secret
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+## 六、总结
 
-  redis:
-    image: redis:6
-    volumes:
-      - redis_data:/data
+通过 NestJS 提供的模块化架构、装饰器语义、BullMQ 的异步调度能力，以及 Prometheus 的监控支持，我们可以构建一个清晰、可靠、可观测的 AI Agent 中控系统。未来你可以很容易地拓展更多 Agent，实现复杂的多阶段协同处理任务。
 
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3001:3000"
-    depends_on:
-      - prometheus
-
-volumes:
-  postgres_data:
-  redis_data:
-```
-
-这个基于 NestJS 的实现提供了以下优势：
-
-1. **模块化架构**：使用 NestJS 的模块系统实现清晰的代码组织
-2. **类型安全**：利用 TypeScript 提供完整的类型检查
-3. **可扩展性**：易于添加新的 agent 类型和工作流
-4. **可配置性**：通过配置文件和工作流定义实现灵活的系统配置
-5. **监控和可观测性**：集成了完整的监控和日志系统
-6. **高性能**：使用 Redis 实现高效的 agent 间通信
-7. **可靠性**：包含错误处理和重试机制
-8. **可维护性**：遵循 SOLID 原则和最佳实践
+下一篇[多 Agent 的协同模式设计与调度策略](./multi-agent-workflow.md)

@@ -1,60 +1,143 @@
-# AI Agent 与多 Agent 协调工作流
+# 多 Agent 协同架构的实现细节
 
-## 概述
+一个 AI Agent 系统的智能程度，不仅取决于每个 Agent 的能力，更取决于它们之间如何协作。
 
-在现代 AI 系统中，单一 agent 往往难以处理复杂的任务场景。多 agent 系统通过 agent 之间的协调与协作，能够实现更强大的问题解决能力。本文将深入探讨 AI agent 的基本概念、多 agent 协调机制，以及实际的工作流设计模式。
+本篇我们聚焦「多 Agent 协同模式」，结合实际工程设计，拆解几种典型协同方案。
 
-## 什么是 AI Agent
+---
 
-### 基本定义
+## 一、Agent 协同的三种核心模式
 
-AI Agent 是一个能够感知环境、做出决策并执行行动的智能体。它具有以下核心特征：
+### 1. 串行协同（Pipeline）
 
-- **自主性（Autonomy）**：能够独立运行，无需持续的人工干预
-- **反应性（Reactivity）**：能够感知环境变化并及时响应
-- **主动性（Proactivity）**：能够主动采取行动以实现目标
-- **社交性（Social Ability）**：能够与其他 agent 或人类进行交互
+Agent A → Agent B → Agent C  
+适合任务有强顺序依赖，如：
 
-### Agent 架构模型
-
-```
-感知模块 → 决策模块 → 行动模块
-    ↑           ↓
-    ←── 学习模块 ←──
+```text
+Planner → Searcher → Writer
 ```
 
-- **感知模块**：收集和处理环境信息
-- **决策模块**：基于目标和知识进行推理
-- **行动模块**：执行具体的操作
-- **学习模块**：从经验中改进性能
+任务链结构清晰，便于调试与监控。
 
-## 多 Agent 系统的优势
+---
 
-### 1. 任务分解与专业化
+### 2. 并行协同（Fork-Join）
 
-复杂任务可以分解为多个子任务，每个 agent 专注于特定领域：
+多个 Agent 并行工作，聚合结果后继续：
 
-- **代码生成 agent**：专注于编写代码
-- **测试 agent**：专注于代码测试和验证
-- **文档 agent**：专注于文档生成和维护
-- **部署 agent**：专注于 CI/CD 流程
-
-### 2. 并行处理能力
-
-多个 agent 可以同时处理不同的任务部分，显著提高效率：
-
-```
-任务A ──→ Agent1 ─┐
-任务B ──→ Agent2 ─┼──→ 结果聚合
-任务C ──→ Agent3 ─┘
+```mermaid
+graph LR
+  P[Planner]
+  P --> S1[Search 1]
+  P --> S2[Search 2]
+  S1 --> W[Writer]
+  S2 --> W
 ```
 
-### 3. 容错性和鲁棒性
+适合任务可拆分的情境，如多源信息整合。
 
-- 单个 agent 失败不会导致整个系统崩溃
-- 可以设计冗余机制提高系统稳定性
-- 动态调整 agent 配置应对异常情况
+---
 
-### 4. 用例
+### 3. 层级协同（主控 Agent）
 
-[nestjs 实现多 Agent 交互系统](./nest-multi-agent.md)
+由一个高级 Agent（Boss）负责拆分与协调：
+
+```ts
+BossAgent.run(input) {
+  const task1 = await planner.run(input);
+  const task2 = await search.run(task1);
+  const result = await writer.run(task2);
+  return result;
+}
+```
+
+适合复杂任务、动态决策、子任务不可预知。
+
+---
+
+## 二、如何在系统中实现协同流程
+
+通过 NestJS 中控架构 + BullMQ 队列，每个 Agent 可以被视为一个异步 Worker：
+
+- 每个任务有独立的任务 ID、上下文
+- 状态通过 Redis 或数据库共享
+- 上游 Agent 完成后可触发下游 Agent
+
+### 任务上下文示例：
+
+```json
+{
+  "taskId": "xyz-123",
+  "pipeline": ["Planner", "Searcher", "Writer"],
+  "context": {
+    "plan": "...",
+    "docs": [...],
+    "draft": "..."
+  }
+}
+```
+
+---
+
+## 三、多 Agent 流程的编排方式
+
+### 1. 手工编排（配置驱动）
+
+通过 YAML 或 JSON 定义流程图：
+
+```yaml
+taskType: write_article
+pipeline:
+  - PlannerAgent
+  - SearchAgent
+  - WriterAgent
+```
+
+中控根据配置动态加载 Agent 并调度。
+
+---
+
+### 2. DAG 编排（图结构）
+
+使用 DAG 表达复杂依赖关系，适合多分支合并流程。
+
+可用现有框架如：
+
+- LangGraph
+- Temporal.io
+- 或自行实现图调度器
+
+---
+
+## 四、设计 Agent 插件标准
+
+统一 Agent 接口：
+
+```ts
+export interface Agent {
+  name: string;
+  run(input: any, context?: TaskContext): Promise<AgentResult>;
+}
+```
+
+Agent 运行结果被中控记录，并作为后续 Agent 输入。
+
+---
+
+## 五、异常与回滚机制
+
+- 每个 Agent 执行失败后自动记录
+- 中控支持失败重试 / fallback Agent
+- 可引入 Dead Letter Queue 捕获长期失败任务
+
+---
+
+## 六、总结
+
+一个强大的多 Agent 系统，需要合理设计协同策略：
+
+- 简单任务走 pipeline
+- 复杂任务用 DAG 或 Boss Agent 控制
+- 所有状态都应可追踪、可监控、可回溯
+
+配合一个稳定的[中控系统](./nest-multi-agent.md)，才能实现真正的多 Agent 协同能力。
