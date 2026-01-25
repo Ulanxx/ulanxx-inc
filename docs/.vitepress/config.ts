@@ -76,8 +76,8 @@ export default withMermaid({
             activeMatch: "^/blog/",
           },
           {
-            text: "思考",
-            link: "/idea/",
+            text: "AI",
+            link: "/ai/",
             activeMatch: "^/idea/",
           },
           { text: "关于", link: "/about/" },
@@ -195,8 +195,8 @@ export default withMermaid({
       options: {
         miniSearch: {
           options: {
-            tokenize: (text) => text.split(/[\s\-_]+|(?=[A-Z])/),
-            processTerm: (term) => term.toLowerCase(),
+            tokenize: (text: string) => text.split(/[\s\-_]+|(?=[A-Z])/),
+            processTerm: (term: string) => term.toLowerCase(),
           },
           searchOptions: {
             fuzzy: 0.3,
